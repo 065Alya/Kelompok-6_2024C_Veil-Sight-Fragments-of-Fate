@@ -89,13 +89,13 @@ public class LandingPageController : MonoBehaviour
 
     IEnumerator AnimationSequence()
     {
-        // Phase 1: Jam 1 berputar searah jarum jam
+        // Jam 1 berputar searah jarum jam
         yield return StartCoroutine(RotateClock1());
 
         // Transisi bergetar
         yield return StartCoroutine(ShakeTransition(clock1));
 
-        // Phase 2: Jam 2 berputar berlawanan arah jarum jam
+        // Jam 2 berputar berlawanan arah jarum jam
         clock1.SetActive(false);
         clock2.SetActive(true);
         yield return StartCoroutine(RotateClock2());
@@ -103,45 +103,45 @@ public class LandingPageController : MonoBehaviour
         // Transisi zoom out
         yield return StartCoroutine(ZoomOutTransition(clock2));
 
-        // Phase 3: Jam 3 muncul dengan efek pop-up
-        // Transisi bergetar dari jam 2 ke jam 3 (tanpa fade)
+        // Jam 3 muncul dengan efek pop-up
+        // Transisi bergetar dari jam 2 ke jam 3 
         yield return StartCoroutine(ShakeTransition(clock2));
 
         clock2.SetActive(false);
         clock3.SetActive(true);
         // Langsung muncul tanpa fade in
 
-        // Jam 3 mendapat transisi getar cepat (tanpa fade out)
-        yield return new WaitForSeconds(1f); // Tampil sebentar
+        // Jam 3 mendapat transisi getar cepat 
+        yield return new WaitForSeconds(1f); 
         yield return StartCoroutine(FastShakeTransition(clock3));
 
-        // Phase 4: Jam 4 muncul dengan fade in
+        // Jam 4 muncul dengan fade in
         clock3.SetActive(false);
         clock4.SetActive(true);
         yield return StartCoroutine(FadeIn(clock4));
-        yield return new WaitForSeconds(1.5f); // Tampil sebentar
+        yield return new WaitForSeconds(1.5f); 
 
         // Fade out jam 4
         yield return StartCoroutine(FadeOut(clock4));
 
-        // Phase 5: Jam Pasir 1 muncul dengan pop-up
+        // Jam Pasir 1 muncul dengan pop-up
         clock4.SetActive(false);
         hourglass1.SetActive(true);
         yield return StartCoroutine(PopUpEffect(hourglass1));
-        yield return new WaitForSeconds(1f); // Tampil sebentar
+        yield return new WaitForSeconds(1f); 
 
-        // Transisi dari jam pasir 1 ke jam pasir 2 dengan getaran saja (tanpa fade)
+        // Transisi dari jam pasir 1 ke jam pasir 2 dengan getaran saja 
         yield return StartCoroutine(ShakeTransition(hourglass1));
 
         hourglass1.SetActive(false);
         hourglass2.SetActive(true);
         // Langsung muncul tanpa fade in
-        yield return new WaitForSeconds(1f); // Tampil sebentar
+        yield return new WaitForSeconds(1f); 
 
         // Fade out jam pasir 2
         yield return StartCoroutine(FadeOut(hourglass2));
 
-        // Phase 6: Logo Mata muncul dengan pop-up effect
+        // Logo Mata muncul dengan pop-up effect
         hourglass2.SetActive(false);
         eyeLogo.SetActive(true);
         yield return StartCoroutine(PopUpEffect(eyeLogo));
@@ -149,7 +149,7 @@ public class LandingPageController : MonoBehaviour
         // Fade out logo mata
         yield return StartCoroutine(FadeOut(eyeLogo));
 
-        // Phase 7: Main Logo muncul dengan efek pencahayaan mewah
+        // Main Logo muncul dengan efek pencahayaan mewah
         eyeLogo.SetActive(false);
         mainLogo.SetActive(true);
         yield return StartCoroutine(FadeIn(mainLogo));
@@ -182,11 +182,11 @@ public class LandingPageController : MonoBehaviour
 
         while (clock2ShortHandRotation < 360f)
         {
-            // Putar jarum panjang berlawanan arah (lebih cepat)
+            // Putar jarum panjang berlawanan arah 
             longHandRotation += clock2LongHandSpeed * Time.deltaTime;
             clock2LongHand.localRotation = Quaternion.Euler(0, 0, longHandRotation);
 
-            // Putar jarum pendek berlawanan arah (lebih lambat)
+            // Putar jarum pendek berlawanan arah 
             clock2ShortHandRotation += clock2ShortHandSpeed * Time.deltaTime;
             clock2ShortHand.localRotation = Quaternion.Euler(0, 0, clock2ShortHandRotation);
 
@@ -339,12 +339,10 @@ public class LandingPageController : MonoBehaviour
         float logoHeight = logoRect.rect.height;
         float actualShineWidth = logoWidth * shineWidth;
 
-        // Set ukuran shine (strip vertikal lebih tinggi dari logo)
+        // Set ukuran shine 
         shineRect.sizeDelta = new Vector2(actualShineWidth, logoHeight * 1.2f);
 
-        // Gunakan gradient untuk efek cahaya alami
-        // Note: Untuk gradient yang lebih halus, sebaiknya buat texture gradient di Photoshop
-        // Tapi kita bisa simulasi dengan alpha yang smooth
+
 
         float elapsed = 0f;
         float startX = -logoWidth / 2 - actualShineWidth;
@@ -364,7 +362,7 @@ public class LandingPageController : MonoBehaviour
             float alpha;
             if (t < 0.3f)
             {
-                // Fade in di awal (0-30%)
+                // Fade in di awal 
                 alpha = Mathf.Lerp(0f, shineAlpha, t / 0.3f);
             }
 
