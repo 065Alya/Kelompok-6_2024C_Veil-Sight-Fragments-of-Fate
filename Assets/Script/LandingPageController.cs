@@ -354,6 +354,7 @@ public class LandingPageController : MonoBehaviour
         while (elapsed < shineDuration)
         {
             float t = elapsed / shineDuration;
+            elapsed += 0.5f;
 
             // Posisi shine bergerak dari kiri ke kanan
             float currentX = Mathf.Lerp(startX, endX, t);
