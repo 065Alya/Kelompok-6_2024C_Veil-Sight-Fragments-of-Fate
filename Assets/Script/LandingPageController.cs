@@ -1,6 +1,7 @@
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class LandingPageController : MonoBehaviour
 {
@@ -39,7 +40,7 @@ public class LandingPageController : MonoBehaviour
     [Header("Transition Settings")]
     public float shakeIntensity = 10f;
     public float shakeDuration = 0.5f;
-    public float fastShakeDuration = 0.25f; // Transisi getar cepat untuk jam 3 ke jam 4
+    public float fastShakeDuration = 0.25f;
     public float zoomOutDuration = 0.8f;
     public float popupScale = 1.5f;
     public float popupDuration = 0.5f;
@@ -60,7 +61,7 @@ public class LandingPageController : MonoBehaviour
         eyeLogo.SetActive(false);
         mainLogo.SetActive(false);
 
-        // Pastikan semua GameObject punya CanvasGroup untuk fade effect
+        // Pastikan semua GameObject punya CanvasGroup
         EnsureCanvasGroup(clock1);
         EnsureCanvasGroup(clock2);
         EnsureCanvasGroup(clock3);
@@ -72,90 +73,85 @@ public class LandingPageController : MonoBehaviour
 
         // Setup shine overlay
         if (logoShineOverlay != null)
-        {
             logoShineOverlay.gameObject.SetActive(false);
-        }
 
+        // Jalankan animasi sequence
         StartCoroutine(AnimationSequence());
     }
 
     void EnsureCanvasGroup(GameObject obj)
     {
-        if (obj.GetComponent<CanvasGroup>() == null)
-        {
+        if (obj != null && obj.GetComponent<CanvasGroup>() == null)
             obj.AddComponent<CanvasGroup>();
-        }
     }
 
     IEnumerator AnimationSequence()
     {
-        // Jam 1 berputar searah jarum jam
+        // Clock 1
         yield return StartCoroutine(RotateClock1());
-
-        // Transisi bergetar
         yield return StartCoroutine(ShakeTransition(clock1));
 
-        // Jam 2 berputar berlawanan arah jarum jam
+        // Clock 2
         clock1.SetActive(false);
         clock2.SetActive(true);
         yield return StartCoroutine(RotateClock2());
-
-        // Transisi zoom out
         yield return StartCoroutine(ZoomOutTransition(clock2));
 
         // Jam 3 muncul dengan efek pop-up
         // Transisi bergetar dari jam 2 ke jam 3 
+        // Phase 3: Clock 3 pop-up
         yield return StartCoroutine(ShakeTransition(clock2));
-
         clock2.SetActive(false);
         clock3.SetActive(true);
-        // Langsung muncul tanpa fade in
-
-        // Jam 3 mendapat transisi getar cepat 
-        yield return new WaitForSeconds(1f); 
+        yield return new WaitForSeconds(1f);
         yield return StartCoroutine(FastShakeTransition(clock3));
 
-        // Jam 4 muncul dengan fade in
+        // Clock 4 fade in
         clock3.SetActive(false);
         clock4.SetActive(true);
         yield return StartCoroutine(FadeIn(clock4));
+        yield return new WaitForSeconds(1.5f);
         yield return new WaitForSeconds(1.5f); 
 
         // Fade out jam 4
         yield return StartCoroutine(FadeOut(clock4));
 
-        // Jam Pasir 1 muncul dengan pop-up
+        // Hourglass 1 pop-up
         clock4.SetActive(false);
         hourglass1.SetActive(true);
         yield return StartCoroutine(PopUpEffect(hourglass1));
+        yield return new WaitForSeconds(1f);
         yield return new WaitForSeconds(1f); 
 
+        // Hourglass 2
         // Transisi dari jam pasir 1 ke jam pasir 2 dengan getaran saja 
         yield return StartCoroutine(ShakeTransition(hourglass1));
-
         hourglass1.SetActive(false);
         hourglass2.SetActive(true);
+        yield return new WaitForSeconds(1f);
         // Langsung muncul tanpa fade in
         yield return new WaitForSeconds(1f); 
 
         // Fade out jam pasir 2
         yield return StartCoroutine(FadeOut(hourglass2));
 
-        // Logo Mata muncul dengan pop-up effect
+        // Eye Logo
         hourglass2.SetActive(false);
         eyeLogo.SetActive(true);
         yield return StartCoroutine(PopUpEffect(eyeLogo));
-
-        // Fade out logo mata
         yield return StartCoroutine(FadeOut(eyeLogo));
 
-        // Main Logo muncul dengan efek pencahayaan mewah
+        // Main Logo
         eyeLogo.SetActive(false);
         mainLogo.SetActive(true);
         yield return StartCoroutine(FadeIn(mainLogo));
         yield return StartCoroutine(ShineEffect());
+
+        // Semua animasi selesai, load PrologFP
+        SceneManager.LoadScene("PrologScene", LoadSceneMode.Single);
     }
 
+    #region Clock Animations
     IEnumerator RotateClock1()
     {
         clock1ShortHandRotation = 0f;
@@ -163,11 +159,9 @@ public class LandingPageController : MonoBehaviour
 
         while (clock1ShortHandRotation < 360f)
         {
-            // Putar jarum panjang (lebih cepat) - searah jarum jam
             longHandRotation += clock1LongHandSpeed * Time.deltaTime;
             clock1LongHand.localRotation = Quaternion.Euler(0, 0, -longHandRotation);
 
-            // Putar jarum pendek (lebih lambat) - searah jarum jam
             clock1ShortHandRotation += clock1ShortHandSpeed * Time.deltaTime;
             clock1ShortHand.localRotation = Quaternion.Euler(0, 0, -clock1ShortHandRotation);
 
@@ -193,59 +187,55 @@ public class LandingPageController : MonoBehaviour
             yield return null;
         }
     }
+    #endregion
 
+    #region Transitions
     IEnumerator ShakeTransition(GameObject obj)
     {
-        RectTransform rectTransform = obj.GetComponent<RectTransform>();
-        Vector2 originalPos = rectTransform.anchoredPosition;
+        RectTransform rect = obj.GetComponent<RectTransform>();
+        Vector2 original = rect.anchoredPosition;
         float elapsed = 0f;
 
         while (elapsed < shakeDuration)
         {
-            float x = originalPos.x + Random.Range(-shakeIntensity, shakeIntensity);
-            float y = originalPos.y + Random.Range(-shakeIntensity, shakeIntensity);
-
-            rectTransform.anchoredPosition = new Vector2(x, y);
-
+            float x = original.x + Random.Range(-shakeIntensity, shakeIntensity);
+            float y = original.y + Random.Range(-shakeIntensity, shakeIntensity);
+            rect.anchoredPosition = new Vector2(x, y);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        rectTransform.anchoredPosition = originalPos;
+        rect.anchoredPosition = original;
     }
 
     IEnumerator FastShakeTransition(GameObject obj)
     {
-        RectTransform rectTransform = obj.GetComponent<RectTransform>();
-        Vector2 originalPos = rectTransform.anchoredPosition;
+        RectTransform rect = obj.GetComponent<RectTransform>();
+        Vector2 original = rect.anchoredPosition;
         float elapsed = 0f;
 
-        // Getaran lebih cepat dengan durasi lebih pendek
         while (elapsed < fastShakeDuration)
         {
-            float x = originalPos.x + Random.Range(-shakeIntensity, shakeIntensity);
-            float y = originalPos.y + Random.Range(-shakeIntensity, shakeIntensity);
-
-            rectTransform.anchoredPosition = new Vector2(x, y);
-
+            float x = original.x + Random.Range(-shakeIntensity, shakeIntensity);
+            float y = original.y + Random.Range(-shakeIntensity, shakeIntensity);
+            rect.anchoredPosition = new Vector2(x, y);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        rectTransform.anchoredPosition = originalPos;
+        rect.anchoredPosition = original;
     }
 
     IEnumerator ZoomOutTransition(GameObject obj)
     {
-        RectTransform rectTransform = obj.GetComponent<RectTransform>();
-        Vector3 originalScale = rectTransform.localScale;
+        RectTransform rect = obj.GetComponent<RectTransform>();
+        Vector3 originalScale = rect.localScale;
         float elapsed = 0f;
 
         while (elapsed < zoomOutDuration)
         {
             float t = elapsed / zoomOutDuration;
-            rectTransform.localScale = Vector3.Lerp(originalScale, originalScale * 0.3f, t);
-
+            rect.localScale = Vector3.Lerp(originalScale, originalScale * 0.3f, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -253,88 +243,75 @@ public class LandingPageController : MonoBehaviour
 
     IEnumerator PopUpEffect(GameObject obj)
     {
-        RectTransform rectTransform = obj.GetComponent<RectTransform>();
-        Vector3 originalScale = rectTransform.localScale;
-        rectTransform.localScale = Vector3.zero;
-
+        RectTransform rect = obj.GetComponent<RectTransform>();
+        Vector3 originalScale = rect.localScale;
+        rect.localScale = Vector3.zero;
         float elapsed = 0f;
 
-        // Scale up dengan overshoot effect
         while (elapsed < popupDuration)
         {
             float t = elapsed / popupDuration;
-            // Elastic ease-out effect
             float scale = Mathf.Sin(t * Mathf.PI * 0.5f);
-            rectTransform.localScale = originalScale * scale * popupScale;
-
+            rect.localScale = originalScale * scale * popupScale;
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        // Scale back to normal
+        // Scale back
         elapsed = 0f;
         while (elapsed < popupDuration * 0.5f)
         {
             float t = elapsed / (popupDuration * 0.5f);
-            rectTransform.localScale = Vector3.Lerp(originalScale * popupScale, originalScale, t);
-
+            rect.localScale = Vector3.Lerp(originalScale * popupScale, originalScale, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        rectTransform.localScale = originalScale;
-
-        // Tunggu sebentar sebelum transisi berikutnya
+        rect.localScale = originalScale;
         yield return new WaitForSeconds(0.5f);
     }
 
     IEnumerator FadeOut(GameObject obj)
     {
-        CanvasGroup canvasGroup = obj.GetComponent<CanvasGroup>();
+        CanvasGroup cg = obj.GetComponent<CanvasGroup>();
         float elapsed = 0f;
 
         while (elapsed < fadeDuration)
         {
             float t = elapsed / fadeDuration;
-            canvasGroup.alpha = Mathf.Lerp(1f, 0f, t);
-
+            cg.alpha = Mathf.Lerp(1f, 0f, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        canvasGroup.alpha = 0f;
+        cg.alpha = 0f;
     }
 
     IEnumerator FadeIn(GameObject obj)
     {
-        CanvasGroup canvasGroup = obj.GetComponent<CanvasGroup>();
-        canvasGroup.alpha = 0f;
+        CanvasGroup cg = obj.GetComponent<CanvasGroup>();
+        cg.alpha = 0f;
         float elapsed = 0f;
 
         while (elapsed < fadeDuration)
         {
             float t = elapsed / fadeDuration;
-            canvasGroup.alpha = Mathf.Lerp(0f, 1f, t);
-
+            cg.alpha = Mathf.Lerp(0f, 1f, t);
             elapsed += Time.deltaTime;
             yield return null;
         }
 
-        canvasGroup.alpha = 1f;
+        cg.alpha = 1f;
     }
 
     IEnumerator ShineEffect()
     {
-        if (logoShineOverlay == null)
-        {
-            yield break;
-        }
+        if (logoShineOverlay == null) yield break;
 
         logoShineOverlay.gameObject.SetActive(true);
         RectTransform shineRect = logoShineOverlay.GetComponent<RectTransform>();
         RectTransform logoRect = mainLogo.GetComponent<RectTransform>();
 
-        // Setup awal shine overlay
         float logoWidth = logoRect.rect.width;
         float logoHeight = logoRect.rect.height;
         float actualShineWidth = logoWidth * shineWidth;
@@ -348,24 +325,23 @@ public class LandingPageController : MonoBehaviour
         float startX = -logoWidth / 2 - actualShineWidth;
         float endX = logoWidth / 2 + actualShineWidth;
 
-        // Animasi bergerak dari kiri ke kanan dengan smooth fade
         while (elapsed < shineDuration)
         {
             float t = elapsed / shineDuration;
-            elapsed += 0.5f;
-
-            // Posisi shine bergerak dari kiri ke kanan
             float currentX = Mathf.Lerp(startX, endX, t);
             shineRect.anchoredPosition = new Vector2(currentX, 0);
 
-            // Alpha fade in dan fade out untuk efek lebih natural
-            float alpha;
-            if (t < 0.3f)
-            {
-                // Fade in di awal 
-                alpha = Mathf.Lerp(0f, shineAlpha, t / 0.3f);
-            }
+            // Alpha fade in/out
+            float alpha = (t < 0.3f) ? Mathf.Lerp(0f, shineAlpha, t / 0.3f) :
+                          (t > 0.7f) ? Mathf.Lerp(shineAlpha, 0f, (t - 0.7f) / 0.3f) :
+                          shineAlpha;
+            logoShineOverlay.color = new Color(1f, 1f, 1f, alpha);
 
+            elapsed += Time.deltaTime;
+            yield return null;
         }
+
+        logoShineOverlay.gameObject.SetActive(false);
     }
+    #endregion
 }

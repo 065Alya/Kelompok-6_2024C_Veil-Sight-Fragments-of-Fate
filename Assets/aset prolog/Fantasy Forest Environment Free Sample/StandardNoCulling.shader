@@ -44,7 +44,7 @@ Shader "Fantasy Forest/StandardNoCulling"
 		ENDCG
 	}
 	Fallback "Diffuse"
-	CustomEditor "ASEMaterialInspector"
+	// CustomEditor "ASEMaterialInspector"
 }
 /*ASEBEGIN
 Version=16800
