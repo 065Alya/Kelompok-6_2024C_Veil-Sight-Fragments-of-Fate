@@ -451,11 +451,6 @@ MonoBehaviour:
   blackoutDelay: 0.5
   breathingAudio: {fileID: 0}
   chokeAudio: {fileID: 0}
-  isChoking: 0
-  lookTimer: 0
-  bobTimer: 0
-  startPosition: {x: 0, y: 0, z: 0}
-  startRotation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &1798152083
 GameObject:
   m_ObjectHideFlags: 0
